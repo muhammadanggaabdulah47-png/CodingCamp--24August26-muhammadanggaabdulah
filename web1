@@ -1,0 +1,665 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Life Dashboard</title>
+
+  <style>
+    :root {
+      --blue: #7180e8;
+      --purple: #7047a8;
+      --ink: #30313a;
+      --red: #e86e70;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px;
+      background: #fff;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      display: grid;
+      place-items: center;
+    }
+
+    .dashboard {
+      width: min(100%, 1000px);
+      min-height: 430px;
+      padding: 16px 4.5%;
+      background: linear-gradient(
+        125deg,
+        #7180e8 0%,
+        #7358bd 55%,
+        #6e449b 100%
+      );
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto auto;
+      gap: 10px;
+      align-content: start;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.98);
+      border-radius: 7px;
+      padding: 16px;
+      box-shadow: 0 2px 7px #3e34721c;
+      min-width: 0;
+    }
+
+    .welcome {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 20px 15px;
+    }
+
+    #clock {
+      font-size: 24px;
+      color: var(--blue);
+      font-weight: 400;
+      font-variant-numeric: tabular-nums;
+    }
+
+    #date {
+      font-size: 10px;
+      color: #777d88;
+      margin-top: 5px;
+    }
+
+    .greeting {
+      font-size: 14px;
+      font-weight: 700;
+      margin-top: 10px;
+    }
+
+    h2 {
+      font-size: 12px;
+      margin: 0 0 10px;
+      font-weight: 700;
+    }
+
+    .timer {
+      text-align: center;
+    }
+
+    .time-display {
+      font-size: 32px;
+      color: var(--blue);
+      font-variant-numeric: tabular-nums;
+      margin: 8px 0;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 0;
+      border-radius: 4px;
+      padding: 6px 10px;
+      font-size: 10px;
+      cursor: pointer;
+      transition: filter 0.15s;
+    }
+
+    button:hover {
+      filter: brightness(0.94);
+    }
+
+    .primary {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .neutral {
+      background: #e8ebf0;
+      color: #555d6a;
+    }
+
+    .danger {
+      background: var(--red);
+      color: white;
+      padding: 4px 7px;
+      font-size: 9px;
+    }
+
+    .task-entry,
+    .link-entry {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 12px;
+    }
+
+    .task-entry input,
+    .link-entry input {
+      min-width: 0;
+      width: 100%;
+      border: 1px solid #8793ee;
+      border-radius: 3px;
+      padding: 6px;
+      font-size: 9px;
+      outline: none;
+    }
+
+    .link-entry input {
+      border-color: #d9dce5;
+    }
+
+    .task-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .task-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      min-width: 0;
+    }
+
+    .task-row input {
+      accent-color: var(--blue);
+      width: 12px;
+      height: 12px;
+      flex-shrink: 0;
+    }
+
+    .task-name {
+      flex: 1;
+      overflow-wrap: anywhere;
+    }
+
+    .task-row.done .task-name {
+      text-decoration: line-through;
+      color: #9da2ad;
+    }
+
+    .links {
+      grid-column: 1;
+      grid-row: 3;
+    }
+
+    .quick-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .quick-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--blue);
+      color: white;
+      border-radius: 4px;
+      padding: 7px 8px;
+      min-width: calc(33.333% - 5px);
+      justify-content: center;
+      font-size: 9px;
+      text-decoration: none;
+      flex: 1;
+    }
+
+    .quick-link button {
+      background: #5263c7;
+      color: white;
+      border-radius: 50%;
+      padding: 0;
+      width: 12px;
+      height: 12px;
+      font-size: 9px;
+      line-height: 12px;
+    }
+
+    .empty {
+      font-size: 10px;
+      color: #969ba7;
+      padding: 3px 0 5px;
+    }
+
+    .hint {
+      font-size: 10px;
+      color: #8b90a0;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 620px) {
+      body {
+        padding: 12px;
+      }
+
+      .dashboard {
+        padding: 12px;
+        grid-template-columns: 1fr;
+        gap: 10px;
+        min-height: 0;
+      }
+
+      .welcome,
+      .links {
+        grid-column: 1;
+      }
+
+      .welcome,
+      .timer,
+      .tasks,
+      .links {
+        grid-row: auto;
+      }
+
+      .quick-link {
+        min-width: calc(50% - 4px);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="dashboard">
+
+    <!-- Welcome dan jam digital -->
+    <section class="panel welcome">
+      <div id="clock">00:00:00</div>
+      <div id="date"></div>
+      <div class="greeting" id="greeting">
+        Good Morning
+      </div>
+    </section>
+
+    <!-- Focus Timer -->
+    <section class="panel timer">
+      <h2>Focus Timer</h2>
+
+      <div class="time-display" id="timerDisplay">
+        25:00
+      </div>
+
+      <div class="buttons">
+        <button class="primary" id="startBtn">
+          Start
+        </button>
+
+        <button class="neutral" id="stopBtn">
+          Stop
+        </button>
+
+        <button class="neutral" id="resetBtn">
+          Reset
+        </button>
+      </div>
+
+      <div class="hint" id="timerStatus"></div>
+    </section>
+
+    <!-- Task Manager -->
+    <section class="panel tasks">
+      <h2>Tasks</h2>
+
+      <form class="task-entry" id="taskForm">
+        <input
+          id="taskInput"
+          placeholder="Add a new task..."
+          maxlength="120"
+          required
+        >
+
+        <button class="primary" type="submit">
+          Add
+        </button>
+      </form>
+
+      <div class="task-list" id="taskList"></div>
+    </section>
+
+    <!-- Quick Links -->
+    <section class="panel links">
+      <h2>Quick Links</h2>
+
+      <form class="link-entry" id="linkForm">
+        <input
+          id="linkName"
+          placeholder="Link name"
+          maxlength="40"
+          required
+        >
+
+        <input
+          id="linkUrl"
+          placeholder="URL"
+          required
+        >
+
+        <button class="primary" type="submit">
+          Add Link
+        </button>
+      </form>
+
+      <div class="quick-list" id="quickList"></div>
+    </section>
+
+  </main>
+
+  <script>
+    // Helper untuk mengambil elemen HTML
+    const $ = id => document.getElementById(id);
+
+    // Penyimpanan lokal browser
+    function safeLoad(key, fallback) {
+      try {
+        const value = JSON.parse(localStorage.getItem(key));
+        return value ?? fallback;
+      } catch {
+        return fallback;
+      }
+    }
+
+    function save(key, value) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch (error) {
+        console.warn("Data tidak dapat disimpan.", error);
+      }
+    }
+
+    // Jam digital dan sapaan otomatis
+    function updateClock() {
+      const now = new Date();
+
+      $("clock").textContent =
+        now.toLocaleTimeString("en-GB", {
+          hour12: false
+        });
+
+      $("date").textContent =
+        now.toLocaleDateString("en-US", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric"
+        });
+
+      const hour = now.getHours();
+
+      $("greeting").textContent =
+        hour < 12
+          ? "Good Morning"
+          : hour < 18
+            ? "Good Afternoon"
+            : "Good Evening";
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+
+
+    // Focus Timer: Pomodoro 25 menit
+    let seconds = 25 * 60;
+    let timerInterval = null;
+
+    function displayTimer() {
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = seconds % 60;
+
+      $("timerDisplay").textContent =
+        String(minutes).padStart(2, "0") +
+        ":" +
+        String(remainingSeconds).padStart(2, "0");
+    }
+
+    $("startBtn").addEventListener("click", () => {
+      if (timerInterval !== null) return;
+
+      if (seconds <= 0) {
+        seconds = 25 * 60;
+        displayTimer();
+      }
+
+      $("timerStatus").textContent =
+        "Focus session in progress";
+
+      timerInterval = setInterval(() => {
+        seconds--;
+        displayTimer();
+
+        if (seconds <= 0) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          seconds = 0;
+
+          displayTimer();
+
+          $("timerStatus").textContent =
+            "Session complete! Take a short break.";
+
+          alert("Focus session complete!");
+        }
+      }, 1000);
+    });
+
+    $("stopBtn").addEventListener("click", () => {
+      clearInterval(timerInterval);
+      timerInterval = null;
+
+      $("timerStatus").textContent = "Timer paused";
+    });
+
+    $("resetBtn").addEventListener("click", () => {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      seconds = 25 * 60;
+
+      displayTimer();
+      $("timerStatus").textContent = "";
+    });
+
+    displayTimer();
+
+
+    // Task Manager
+    let tasks = safeLoad("lifeDashboardTasks", []);
+
+    function renderTasks() {
+      const list = $("taskList");
+      list.replaceChildren();
+
+      if (tasks.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent =
+          "No tasks yet. Add one to get started!";
+
+        list.append(empty);
+        return;
+      }
+
+      tasks.forEach(task => {
+        const row = document.createElement("div");
+
+        row.className =
+          "task-row" + (task.done ? " done" : "");
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = task.done;
+        checkbox.setAttribute(
+          "aria-label",
+          "Tandai tugas selesai"
+        );
+
+        checkbox.addEventListener("change", () => {
+          task.done = checkbox.checked;
+          save("lifeDashboardTasks", tasks);
+          renderTasks();
+        });
+
+        const name = document.createElement("span");
+        name.className = "task-name";
+        name.textContent = task.text;
+
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "danger";
+        deleteButton.textContent = "Delete";
+
+        deleteButton.addEventListener("click", () => {
+          tasks = tasks.filter(item => item.id !== task.id);
+
+          save("lifeDashboardTasks", tasks);
+          renderTasks();
+        });
+
+        row.append(checkbox, name, deleteButton);
+        list.append(row);
+      });
+    }
+
+    $("taskForm").addEventListener("submit", event => {
+      event.preventDefault();
+
+      const text = $("taskInput").value.trim();
+
+      if (!text) return;
+
+      tasks.push({
+        id: Date.now() + Math.random(),
+        text: text,
+        done: false
+      });
+
+      save("lifeDashboardTasks", tasks);
+
+      $("taskInput").value = "";
+      renderTasks();
+    });
+
+    renderTasks();
+
+
+    // Quick Links
+    let links = safeLoad("lifeDashboardLinks", [
+      {
+        id: 1,
+        name: "Google",
+        url: "https://www.google.com"
+      },
+      {
+        id: 2,
+        name: "Gmail",
+        url: "https://mail.google.com"
+      },
+      {
+        id: 3,
+        name: "Calendar",
+        url: "https://calendar.google.com"
+      }
+    ]);
+
+    function normalizeUrl(value) {
+      let url = value.trim();
+
+      if (!/^https?:\/\//i.test(url)) {
+        url = "https://" + url;
+      }
+
+      try {
+        const parsed = new URL(url);
+
+        if (
+          parsed.protocol === "http:" ||
+          parsed.protocol === "https:"
+        ) {
+          return parsed.href;
+        }
+
+        return null;
+      } catch {
+        return null;
+      }
+    }
+
+    function renderLinks() {
+      const list = $("quickList");
+      list.replaceChildren();
+
+      if (links.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = "No quick links yet.";
+
+        list.append(empty);
+        return;
+      }
+
+      links.forEach(link => {
+        const anchor = document.createElement("a");
+
+        anchor.className = "quick-link";
+        anchor.href = link.url;
+        anchor.target = "_blank";
+        anchor.rel = "noopener noreferrer";
+
+        const label = document.createElement("span");
+        label.textContent = link.name;
+
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.textContent = "×";
+        deleteButton.setAttribute(
+          "aria-label",
+          "Hapus " + link.name
+        );
+
+        deleteButton.addEventListener("click", event => {
+          event.preventDefault();
+          event.stopPropagation();
+
+          links = links.filter(item => item.id !== link.id);
+
+          save("lifeDashboardLinks", links);
+          renderLinks();
+        });
+
+        anchor.append(label, deleteButton);
+        list.append(anchor);
+      });
+    }
+
+    $("linkForm").addEventListener("submit", event => {
+      event.preventDefault();
+
+      const name = $("linkName").value.trim();
+      const url = normalizeUrl($("linkUrl").value);
+
+      if (!name || !url) {
+        alert("Masukkan nama dan URL yang valid.");
+        return;
+      }
+
+      links.push({
+        id: Date.now() + Math.random(),
+        name: name,
+        url: url
+      });
+
+      save("lifeDashboardLinks", links);
+
+      $("linkName").value = "";
+      $("linkUrl").value = "";
+
+      renderLinks();
+    });
+
+    renderLinks();
+  </script>
+</body>
+</html>
